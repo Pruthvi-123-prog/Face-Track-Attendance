@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #161b22;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .camera-box {
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            position: relative;
+        }
+        .camera-box video {
+            width: 100%;
+            height: auto;
+        }
+        .face-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .scanning-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            animation: scanning 2s infinite;
+        }
+        @keyframes scanning {
+            0% { top: 50%; height: 1px; }
+            50% { top: 0; height: 100%; }
+            100% { top: 100%; height: 1px; }
+        }
+        .toggle-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <h2>Create Account</h2>
+        <form onsubmit="handleSignup(event)">
+            <div class="form-group">
+                <input type="text" id="usn" class="form-control" placeholder="USN (e.g., 4SH22CS011)" required>
+            </div>
+            <div class="form-group">
+                <select id="department" class="form-control" required>
+                    <option value="">Select Department</option>
+                    <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                    <option value="Information Science and Engineering">Information Science and Engineering</option>
+                    <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="section" class="form-control" required>
+                    <option value="">Select Section</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+        </form>
+        <div class="camera-box">
+            <video id="video" autoplay></video>
+            <div class="face-animation" id="face-animation">
+                <div class="scanning-line"></div>
+            </div>
+        </div>
+        <div class="toggle-links">
+            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </div>
+    </div>
+
+    <script>
+        function handleSignup(event) {
+            event.preventDefault();
+            const usnInput = document.getElementById("usn");
+            const departmentInput = document.getElementById("department");
+            const sectionInput = document.getElementById("section");
+            const usn = usnInput.value;
+            const department = departmentInput.value;
+            const section = sectionInput.value;
+
+            if (!validateUSN(usn)) {
+                alert("Invalid USN format. Please use format 4SH22CS011.");
+                return;
+            }
+
+            const faceAnimation = document.getElementById("face-animation");
+            faceAnimation.style.display = 'flex';
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.getElementById("video");
+                    video.srcObject = stream;
+                    video.play();
+
+                    // Add a delay to allow the camera to focus and simulate face analysis
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = canvas.toDataURL('image/jpeg');
+
+                        fetch('/signup/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                                usn: usn,
+                                department: department,
+                                section: section,
+                                imageData: imageData
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            if (data.message === "Student registered successfully!") {
+                                window.location.href = "/login/";
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+
+                        stream.getTracks().forEach(track => track.stop());
+                        faceAnimation.style.display = 'none';
+                    }, 2000); // 2 seconds delay
+                })
+                .catch(err => {
+                    console.error("Error accessing camera:", err);
+                    alert("Could not access camera. Please try again.");
+                    faceAnimation.style.display = 'none';
+                });
+        }
+
+        function validateUSN(usn) {
+            const usnPattern = /^4SH\d{2}[A-Z]{2}\d{3}$/;
+            return usnPattern.test(usn);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
