@@ -165,6 +165,7 @@
                         .then(data => {
                             console.log(data);
                             if (data.message === "Student registered successfully!") {
+                                alert("Student registered successfully!")
                                 window.location.href = "/login/";
                             } else {
                                 alert(data.message);
