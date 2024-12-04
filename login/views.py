@@ -47,6 +47,11 @@ def register_student(request: HttpRequest) -> JsonResponse:
             # Load or create students list
             students = load_students()
 
+            # Check for duplicate USN
+            for student in students:
+                if student['usn'] == usn:
+                    return JsonResponse({"message": "User with this USN already exists. Please use a different USN."}, status=400)
+
             # Add new student
             students.append({
                 'usn': usn,
