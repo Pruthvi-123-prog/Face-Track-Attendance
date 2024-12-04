@@ -6,6 +6,22 @@ SECRET_KEY = 'your-secret-key'
 DEBUG = True
 ALLOWED_HOSTS = []
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,7 +40,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'login.middleware.DataAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'login_project.urls'
@@ -45,7 +60,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # Data access credentials
 DATA_ACCESS_CREDENTIALS = {
     'username': 'admin',
-    'password': 'pbkdf2_sha256$390000$your_hashed_password_here'
+    'password': 'pbkdf2_sha256$216000$Gw5DtalkeFvh$3n0lbt/S+l2v3Lx9Lo8+sc2PCdPKWuWUAz1UhN1x7dQ='
 }
 
 LANGUAGE_CODE = 'en-us'

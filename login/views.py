@@ -9,6 +9,7 @@ import numpy as np
 import json
 import os
 from pathlib import Path
+import base64
 
 # Configure data file path for local development
 BASE_DIR = Path(__file__).resolve().parent.parent
