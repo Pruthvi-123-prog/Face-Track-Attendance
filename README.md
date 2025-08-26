@@ -43,6 +43,7 @@ This project implements a camera-based attendance system that leverages Python's
 
 ## File Structure Overview
 
+```text
 .
 ├── .gitignore
 ├── Dockerfile
@@ -52,24 +53,27 @@ This project implements a camera-based attendance system that leverages Python's
 ├── login_project/
 ├── manage.py
 └── requirements.txt
+```
 
 ## Prerequisites
 
-- Python 3.6+
-- Docker (if using Dockerfile)
-- pip (for installing dependencies)
+```
+Python 3.6+
+Docker (if using Dockerfile)
+pip (for installing dependencies)
+```
 
 ## Installation
 
-# Clone the repository
+```bash
 git clone https://github.com/Pruthvi-123-prog/Face-Track-Attendance.git
 cd Face-Track-Attendance
-
-# Install dependencies
 python -m pip install -r requirements.txt
+```
 
 ## Usage
 
+```bash
 # Apply database migrations
 python manage.py migrate
 
@@ -79,6 +83,7 @@ python manage.py runserver
 # For Docker deployment
 docker build -t face-track-attendance .
 docker run -p 8000:8000 face-track-attendance
+```
 
 ## Contributing
 
@@ -91,4 +96,4 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-Your Name - projectlink - email@example.com
+Pruthvi - [GitHub Repo](https://github.com/Pruthvi-123-prog/Face-Track-Attendance) - pruthvis2004@gmail.com
